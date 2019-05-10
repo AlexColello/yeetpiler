@@ -1,5 +1,7 @@
 import sys, getopt, os, traceback
 from yeet_generator import YeetGenerator
+import parser
+
 
 def main(argv):
 	inputfile = ''
@@ -33,11 +35,39 @@ def main(argv):
 		print('The file {} does not exist.'.format(inputfile))
 		sys.exit(1)
 
+	with open(inputfile, "r") as fi:
+		lines = fi.readlines()
+
+	line_tokens = []
+	for line in lines:
+		tokens = parser.get_tokens(line)
+		print(tokens)
+		line_tokens.append(tokens)
+
 	outputfile = os.path.abspath(outputfile)
+	yeetfile = os.path.join(os.path.dirname(outputfile), 'yeet.h')
+
+	yeet_generator = YeetGenerator()
 
 	try:
-		with open(inputfile, "r") as fi, open(outputfile, "w") as fo:
-			print(fi.read())
+		with open(outputfile, "w") as fo:
+
+			yeet_table = {}
+
+			for tokens in line_tokens:
+				tokens_iter = iter(tokens)
+				for token in tokens_iter:
+					if token == '#':
+						yeet = token + next(tokens_iter)
+					elif token in yeet_table:
+						yeet = yeet_table[token]
+					else:
+						yeet = yeet_generator.next()
+						yeet_table[token] = yeet
+
+					fo.write(yeet + ' ')
+				fo.write('\n')
+
 
 	except OSError as e:
 		print('Could not yeet file {} to {}'.format(inputfile, outputfile))
