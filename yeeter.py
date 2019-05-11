@@ -57,7 +57,17 @@ def main(argv):
 			for tokens in line_tokens:
 				tokens_iter = iter(tokens)
 				for token in tokens_iter:
-					if token == '#':
+
+					if token == '"':
+						string_val = token
+						next_token = next(tokens_iter)
+						while next_token != '"':
+							string_val += next_token
+							next_token = next(tokens_iter)
+						string_val += next_token
+						token = string_val
+					
+					if len(token) != 0 and token[0] == '#':
 						yeet = token + next(tokens_iter)
 					elif token in yeet_table:
 						yeet = yeet_table[token]
@@ -68,11 +78,20 @@ def main(argv):
 					fo.write(yeet + ' ')
 				fo.write('\n')
 
-
 	except OSError as e:
 		print('Could not yeet file {} to {}'.format(inputfile, outputfile))
 		print(e)
 
+	try:
+
+		with open(yeetfile, "w") as fo:
+
+			for token in yeet_table.keys():
+				fo.write('#define {} {}\n'.format(yeet_table[token], token))
+
+	except OSError as e:
+		print('Could not yeet file yeet.h to {}'.format(yeetfile))
+		print(e)
 
 
 if __name__ == "__main__":
