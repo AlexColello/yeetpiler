@@ -54,18 +54,11 @@ def main(argv):
 
 			yeet_table = {}
 
+			fo.write('#include "yeet.h"\n')
+
 			for tokens in line_tokens:
 				tokens_iter = iter(tokens)
 				for token in tokens_iter:
-
-					if token == '"':
-						string_val = token
-						next_token = next(tokens_iter)
-						while next_token != '"':
-							string_val += next_token
-							next_token = next(tokens_iter)
-						string_val += next_token
-						token = string_val
 					
 					if len(token) != 0 and token[0] == '#':
 						yeet = token + next(tokens_iter)

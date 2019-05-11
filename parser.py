@@ -1,16 +1,18 @@
 
 import string
 
-
-# Is ->* or .* or ... necessary?
 two_character_operators = [
 	'++', '--',
 	'==', '!=', '>=', '<=',
 	'&&', '||',
 	'<<', '>>',
-	'+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', '<<=', '>>=',
-	'->',
+	'+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=',
+	'->', '.*',
 	'::'
+]
+
+three_character_operators = [
+	'<<=', '>>=', '...', '->*'
 ]
 
 def is_delimiter(char):
@@ -32,17 +34,33 @@ def get_tokens(line):
 			token = line[left:right]
 			if token != '':
 				tokens.append(token)
-			if line[right] not in string.whitespace:
-				if right + 1 != len(line):
+			if line[right] == '"':
+				string_val = '"'
+				right += 1
+				while line[right] != '"':
+					string_val += line[right]
+					right += 1
+				string_val += '"'
+				tokens.append(string_val)
+			elif line[right] not in string.whitespace:
+
+				if right + 2 < len(line):
+					val = line[right:right+2]
+					if val in three_character_operators:
+						tokens.append(val)
+						right += 3
+						left = right
+						continue
+
+				if right + 1 < len(line):
 					val = line[right:right+2]
 					if val in two_character_operators:
-
 						tokens.append(val)
-						right += 1
-					else:
-						tokens.append(line[right])
-				else:
-					tokens.append(line[right])
+						right += 2
+						left = right
+						continue
+
+				tokens.append(line[right])
 
 			right += 1
 			left = right
