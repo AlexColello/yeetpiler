@@ -39,10 +39,12 @@ def main(argv):
 		lines = fi.readlines()
 
 	line_tokens = []
+	indentation = []
 	for line in lines:
 		tokens = parser.get_tokens(line)
-		print(tokens)
+		#print(tokens)
 		line_tokens.append(tokens)
+		indentation.append(parser.get_indentation(line))
 
 	outputfile = os.path.abspath(outputfile)
 	yeetfile = os.path.join(os.path.dirname(outputfile), 'yeet.h')
@@ -56,7 +58,8 @@ def main(argv):
 
 			fo.write('#include "yeet.h"\n')
 
-			for tokens in line_tokens:
+			for tokens, indent in zip(line_tokens, indentation):
+				fo.write(indent)
 				tokens_iter = iter(tokens)
 				for token in tokens_iter:
 					

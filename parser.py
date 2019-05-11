@@ -19,7 +19,7 @@ def is_delimiter(char):
 	return char not in string.ascii_letters and char not in string.digits and char != '_'
 
 def get_indentation(line):
-	return line.replace(string.lstrip(line), '')
+	return line.replace(string.lstrip(line), '').replace('\n', '')
 
 def get_tokens(line):
 

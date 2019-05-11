@@ -1,0 +1,16 @@
+#define yeeT std
+#define Yeet iostream
+#define yEeT cout
+#define YEet int
+#define YeEt (
+#define YEeT <<
+#define yeET "Yeet!"
+#define YeET endl
+#define yEEt )
+#define YeeT ::
+#define yEET ;
+#define YEEt {
+#define yeEt main
+#define YEET }
+#define yeet <
+#define yEet >
