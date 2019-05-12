@@ -1,10 +1,12 @@
-#include <iostream>
+#include "yeet_help.h"
+
 
 /* comment
 dfbmn-> */
 int main()
 {
 
-	std::cout << "Yeet!" << std::endl;
+	Hello* val = new Hello();
+	val->sayHello();
 	return 0;
 } 

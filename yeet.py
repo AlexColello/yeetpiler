@@ -64,6 +64,9 @@ def main(argv):
 		input_directory = os.path.dirname(input_path)
 		inputs.append(input_path)
 
+	yeet_table = {}
+	yeet_generator = YeetGenerator()
+
 	for input_file in inputs:
 
 		with open(input_file, "r") as fi:
@@ -78,9 +81,6 @@ def main(argv):
 
 		file_name = input_file.replace(input_directory, '')[1:]
 		output_file_path = os.path.join(output_directory, file_name)
-
-		yeet_generator = YeetGenerator()
-		yeet_table = {}
 
 		try:
 			os.makedirs(os.path.dirname(output_file_path), exist_ok=True)

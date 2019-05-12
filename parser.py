@@ -41,7 +41,7 @@ def get_tokens(line):
 				while right < len(line) and line[right] != '"':
 					string_val += line[right]
 					right += 1
-				if not right < len(line):
+				if right < len(line):
 					string_val += '"'
 				tokens.append(string_val)
 			elif line[right] not in string.whitespace:
