@@ -8,7 +8,8 @@ two_character_operators = [
 	'<<', '>>',
 	'+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=',
 	'->', '.*',
-	'::'
+	'::', 
+	'//', '/*', '*/'
 ]
 
 three_character_operators = [
@@ -19,7 +20,7 @@ def is_delimiter(char):
 	return char not in string.ascii_letters and char not in string.digits and char != '_'
 
 def get_indentation(line):
-	return line.replace(string.lstrip(line), '').replace('\n', '')
+	return line.replace(line.lstrip(), '').replace('\n', '')
 
 def get_tokens(line):
 
@@ -37,15 +38,16 @@ def get_tokens(line):
 			if line[right] == '"':
 				string_val = '"'
 				right += 1
-				while line[right] != '"':
+				while right < len(line) and line[right] != '"':
 					string_val += line[right]
 					right += 1
-				string_val += '"'
+				if not right < len(line):
+					string_val += '"'
 				tokens.append(string_val)
 			elif line[right] not in string.whitespace:
 
 				if right + 2 < len(line):
-					val = line[right:right+2]
+					val = line[right:right+3]
 					if val in three_character_operators:
 						tokens.append(val)
 						right += 3
