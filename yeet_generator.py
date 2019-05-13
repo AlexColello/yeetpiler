@@ -2,31 +2,24 @@ import math
 
 def make_yeet(num):
 
+    num += 16 # Makes the number of capitalized letters at least 4, the length of the yeet
+    capitalized_letters = int(math.log(num, 2))
+
+    num_e = max(2, capitalized_letters - 2)
+    base = 'Y' + 'E' * num_e + 'T'
+
     output = ""
-
-    if num == 0:
-        iterations = 4
-    else:
-        iterations = max(4, int(math.log(num, 2)) + 1)
-
-    # print('{} {}'.format(num, iterations))
-
-    for i in range(iterations):
-        if i == 0:
-            base = 'Y'
-        elif i == iterations - 1:
-            base = 'T'
-        else:
-            base = 'E'
+    for i in range(capitalized_letters):
 
         capitalized = not ((num >> i) & 1)
+        output += chr(ord(base[i]) + capitalized * 32)
 
-        output += chr(ord(base) + capitalized * 32)
+    output += base[len(output):].lower()
     return output
 
 
-# for i in range(65):
-#     print('{} {}'.format(make_yeet(i), i))
+for i in range(65):
+    print('{} {}'.format(make_yeet(i), i))
 
 
 class YeetGenerator():
