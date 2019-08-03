@@ -19,59 +19,146 @@ three_character_operators = [
 def is_delimiter(char):
 	return char not in string.ascii_letters and char not in string.digits and char != '_'
 
-def get_indentation(line):
-	return line.replace(line.lstrip(), '').replace('\n', '')
+def parse_indentation(file_string, starting_index):
 
-def get_tokens(line):
+	assert file_string[starting_index] == '\n'
 
-	left = 0
-	right = 0
-	token_start = -1
+	indent_val = ''
+	current_index = starting_index
+	while current_index < len(file_string) and file_string[current_index] in string.whitespace:
+		indent_val += file_string[current_index]
+		current_index += 1
+
+	return indent_val
+
+def parse_milti_line_comment(file_string, starting_index):
+
+	assert file_string[starting_index:starting_index+2] == '/*'
+
+	comment_val = ''
+	current_index = starting_index
+	while file_string[current_index:current_index+2] != '*/':
+		comment_val += file_string[current_index]
+		current_index += 1
+	comment_val += '*/'
+
+	return comment_val
+
+def parse_single_line_comment(file_string, starting_index):
+
+	assert file_string[starting_index:starting_index+2] == '//'
+
+	comment_val = ''
+	current_index = starting_index
+	while current_index < len(file_string) and file_string[current_index] != '\n':
+		comment_val += file_string[current_index]
+		current_index += 1
+	comment_val += '\n'
+
+	return comment_val
+
+def parse_string_literal(file_string, starting_index):
+
+	assert file_string[starting_index] == '"'
+
+	string_val = '"'
+	current_index = starting_index + 1
+	while file_string[current_index] != '"':
+		string_val += file_string[current_index]
+		current_index += 1
+	string_val += '"'
+
+	return string_val
+
+
+def parse_delimiter(file_string, starting_index):
+
+	if starting_index + 2 < len(file_string):
+		val = file_string[starting_index:starting_index+3]
+		if val in three_character_operators:
+			return val
+
+	if starting_index + 1 < len(file_string):
+		val = file_string[starting_index:starting_index+2]
+		if val in two_character_operators:
+			return val
+
+	return file_string[starting_index]
+
+def parse_precompiler_command(file_string, starting_index):
+
+	assert file_string[starting_index] == '#'
+
+	command_val = ''
+	current_index = starting_index
+	while current_index < len(file_string) and file_string[current_index] not in string.whitespace:
+		command_val += file_string[current_index]
+		current_index += 1
+	if current_index < len(file_string):
+		command_val += file_string[current_index]
+
+	return command_val
+
+def parse_file(file_string):
+
+	retval = ''
+
+	current_token = ''
+	current_index = 0
 	tokens = []
 
-	while left <= right and right < len(line):
+	while current_index < len(file_string):
 
-		if is_delimiter(line[right]):
-			token = line[left:right]
-			if token != '':
-				tokens.append(token)
-			if line[right] == '"':
-				string_val = '"'
-				right += 1
-				while right < len(line) and line[right] != '"':
-					string_val += line[right]
-					right += 1
-				if right < len(line):
-					string_val += '"'
-				tokens.append(string_val)
-			elif line[right] not in string.whitespace:
+		if is_delimiter(file_string[current_index]):
 
-				if right + 2 < len(line):
-					val = line[right:right+3]
-					if val in three_character_operators:
-						tokens.append(val)
-						right += 3
-						left = right
-						continue
+			if current_token != '':
+				tokens.append((current_token, True))
+				current_token = ''
 
-				if right + 1 < len(line):
-					val = line[right:right+2]
-					if val in two_character_operators:
-						tokens.append(val)
-						right += 2
-						left = right
-						continue
+			
+			if file_string[current_index] == '#':
 
-				tokens.append(line[right])
+				command_val = parse_precompiler_command(file_string, current_index)
+				current_index += len(command_val)
+				tokens.append((command_val, False))
 
-			right += 1
-			left = right
+			elif file_string[current_index] == '"':
+
+				string_val = parse_string_literal(file_string, current_index)
+				current_index += len(string_val)
+				tokens.append((string_val, True))
+
+			elif current_index + 2 < len(file_string) and file_string[current_index:current_index+2] == '//':
+
+				single_line_comment_val = parse_single_line_comment(file_string, current_index)
+				current_index += len(single_line_comment_val)
+				tokens.append((single_line_comment_val, False))
+
+			elif current_index + 2 < len(file_string) and file_string[current_index:current_index+2] == '/*':
+
+				multi_line_comment_val = parse_milti_line_comment(file_string, current_index)
+				current_index += len(multi_line_comment_val)
+				tokens.append((multi_line_comment_val, False))
+
+			elif file_string[current_index] not in string.whitespace:
+
+				delimiter_val = parse_delimiter(file_string, current_index)
+				current_index += len(delimiter_val)
+				tokens.append((delimiter_val, True))
+
+			elif file_string[current_index] == '\n':
+
+				indent_val = parse_indentation(file_string, current_index)
+				current_index += len(indent_val)
+				tokens.append((indent_val, False))
+
+			else:
+				current_index += 1
+
 
 		else:
-			right += 1
+			current_token += file_string[current_index]
+			current_index += 1
 
 	return tokens
-
-
-	
 
