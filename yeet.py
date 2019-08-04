@@ -23,7 +23,15 @@ def yeet_file(file_string, yeet_table, yeet_generator):
 
 	return yeeted_file_string
 
+def get_yeet_path(root_directory, file_path):
+	relative_path = file_path.replace(root_directory, '') 
 
+	depth = file.count('/') - 1
+
+	retval = '../'*depth
+	retval += 'yeet.h'
+
+	return retval
 
 def main(argv):
 	
@@ -96,8 +104,10 @@ def main(argv):
 		try:
 			os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
 
+			yeet_header_path = get_yeet_path(output_directory, output_file_path)
+
 			with open(output_file_path, "w") as fo:
-				fo.write('#include "yeet.h"\n')
+				fo.write('#include "{}"\n'.format(yeet_header_path))
 				fo.write(yeeted_file_string)
 
 		except OSError as e:
