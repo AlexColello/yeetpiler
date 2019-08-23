@@ -22,7 +22,7 @@ class WordGenorator():
         num_pattern = max(self.starting_pattern, int((capitalized_letters - len(self.suffix + self.prefix))/len(self.pattern)))
         base = self.prefix + self.pattern * num_pattern + self.suffix
 
-        output = ""
+        output = ''
         for i in range(capitalized_letters):
 
             capitalized = not ((num >> i) & 1)

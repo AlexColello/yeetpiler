@@ -1,6 +1,7 @@
 import sys, getopt, os, traceback, glob
 from word_generator import YeetGenerator
 import parser
+from chardet.universaldetector import UniversalDetector
 
 def yeet_file(file_string, yeet_table, yeet_generator):
 
@@ -26,7 +27,7 @@ def yeet_file(file_string, yeet_table, yeet_generator):
 def get_yeet_path(root_directory, file_path):
 	relative_path = file_path.replace(root_directory, '') 
 
-	depth = file.count('/') - 1
+	depth = relative_path.count('/') - 1
 
 	retval = '../'*depth
 	retval += 'yeet.h'
@@ -91,10 +92,29 @@ def main(argv):
 	yeet_table = {}
 	yeet_generator = YeetGenerator()
 
+	detector = UniversalDetector()
 	for input_file in inputs:
 
-		with open(input_file, "r") as fi:
-			file_string = fi.read()
+		print('Yeeting {}'.format(input_file))
+
+		# Attempt to find the encoding of the file that is being read.
+		try:
+			detector.reset()
+			for line in open(input_file, 'rb'):
+				detector.feed(line)
+				if detector.done: break
+			detector.close()
+		except UnicodeDecodeError:
+			print('Could not decode file {}'.format(input_file))
+			detector.close()
+			continue
+
+		try:
+			with open(input_file, "r", encoding=detector.result['encoding']) as fi:
+				file_string = fi.read()
+		except UnicodeDecodeError:
+			print('Could not read file {} \n Expected encode was: {}'.format(input_file, detector.result['encoding']))
+			continue
 
 		yeeted_file_string = yeet_file(file_string, yeet_table, yeet_generator)
 
@@ -114,6 +134,8 @@ def main(argv):
 			print('Could not yeet file {} to {}'.format(input_file, output_file_path))
 			print(e)
 
+
+
 	# Output header file with the macro definitions for all of the input files
 	try:
 		yeetfile = os.path.join(output_directory, 'yeet.h')
@@ -128,4 +150,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+	main(sys.argv[1:])
