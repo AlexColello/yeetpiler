@@ -155,3 +155,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+yeet/
+mozilla_test/
+mozilla_test_yeeted/

@@ -47,6 +47,9 @@ class TrolololGenerator(WordGenorator):
     def __init__(self):
         super().__init__('OL', prefix='TR', starting_pattern=3)
 
-
+class EGenerator(WordGenorator):
+    
+    def __init__(self):
+        super().__init__('E')
 
 

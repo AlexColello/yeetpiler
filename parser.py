@@ -110,6 +110,11 @@ def parse_precompiler_command(file_string, starting_index):
 		return '##'
 
 	while file_string[current_index] in string.whitespace:
+
+		# Corner case for a '#' and nothing afterwards.
+		if file_string[current_index] == '\n':
+			return command_val
+
 		command_val += file_string[current_index]
 		current_index += 1
 
@@ -125,7 +130,37 @@ def parse_precompiler_command(file_string, starting_index):
 
 	return command_val
 
+def parse_number(file_string, starting_index):
+	""" This function parses a number from the string.
+
+	References for all the number literals:
+	https://en.cppreference.com/w/cpp/language/integer_literal
+	https://en.cppreference.com/w/cpp/language/user_literal
+	https://en.cppreference.com/w/cpp/language/floating_literal
+	"""
+
+
+	assert file_string[starting_index] in string.digits
+
+	if file_string[starting_index] == '0':
+		if file_string[starting_index + 1] in ''
+
+	acceptable_chars = string.hexdigits + "'.xXbBlLfF"
+	number_val = ''
+	current_index = starting_index
+	
+	while file_string[current_index] in acceptable_chars:
+		number_val += file_string[current_index]
+		current_index += 1
+	
+	return number_val
+
+
 def parse_file(file_string):
+	""" Returns a list of all of the tokens in the file in order. The list consists
+		of pairs with the token and boolean that is True if the token should be replaced
+		by a yeet, and false otherwise.
+	"""
 
 	retval = ''
 
@@ -191,8 +226,14 @@ def parse_file(file_string):
 				tokens.append((indent_val, False))
 
 			else:
+				# This should be whitespace other than newline
 				current_index += 1
 
+		elif current_token == '' and file_string[current_index] in string.digits:
+
+			number_val = parse_number(file_string, current_index)
+			current_index += len(number_val)
+			tokens.append((number_val, True))
 
 		else:
 			current_token += file_string[current_index]

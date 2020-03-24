@@ -14,3 +14,4 @@ This program will interpret C and C++ code, then write obfuscated code where all
 - Decimal numbers
 - Quotation marks as digit separators for C++14
 - Literal strings denoted with L
+- User-defined literals
