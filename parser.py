@@ -135,21 +135,19 @@ def parse_number(file_string, starting_index):
 
 	References for all the number literals:
 	https://en.cppreference.com/w/cpp/language/integer_literal
-	https://en.cppreference.com/w/cpp/language/user_literal
 	https://en.cppreference.com/w/cpp/language/floating_literal
 	"""
 
-
 	assert file_string[starting_index] in string.digits
 
-	if file_string[starting_index] == '0':
-		if file_string[starting_index + 1] in ''
-
-	acceptable_chars = string.hexdigits + "'.xXbBlLfF"
+	acceptable_chars = string.hexdigits + "'.lLuUfFep"
 	number_val = ''
 	current_index = starting_index
-	
+
 	while file_string[current_index] in acceptable_chars:
+		if file_string[current_index] in 'ep' and file_string[current_index+1] == '-':
+			number_val += file_string[current_index]
+			current_index += 1
 		number_val += file_string[current_index]
 		current_index += 1
 	
