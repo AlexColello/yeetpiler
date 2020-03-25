@@ -1,3 +1,10 @@
+"""
+	TODO:
+	defined keyword: https://gcc.gnu.org/onlinedocs/gcc-8.4.0/cpp/Defined.html
+	User defined literals: https://en.cppreference.com/w/cpp/language/user_literal
+	String literals: https://en.cppreference.com/w/cpp/language/string_literal
+"""
+
 
 import string
 
@@ -64,7 +71,10 @@ def parse_string_literal(file_string, starting_index):
 
 	string_val = '"'
 	current_index = starting_index + 1
-	while file_string[current_index] != '"' or (file_string[current_index-1] == '\\' and file_string[current_index-2] != '\\'):
+	while file_string[current_index] != '"':
+		if file_string[current_index] == '\\':
+			string_val += file_string[current_index]
+			current_index += 1
 		string_val += file_string[current_index]
 		current_index += 1
 	string_val += '"'
@@ -122,11 +132,16 @@ def parse_precompiler_command(file_string, starting_index):
 		command_val += file_string[current_index]
 		current_index += 1
 
+	no_white_space = "".join(command_val.split())
+
 	# Corner case for the #error command.
-	if command_val.endswith('error'):
+	if no_white_space == '#error':
 		while current_index < len(file_string) and (file_string[current_index] != '\n' or file_string[current_index-1] == '\\'):
 			command_val += file_string[current_index]
 			current_index += 1
+	# Corner case for the defined command https://gcc.gnu.org/onlinedocs/gcc-8.4.0/cpp/Defined.html
+	elif no_white_space == '#if' or no_white_space == '#elif':
+		pass
 
 	return command_val
 
@@ -143,9 +158,10 @@ def parse_number(file_string, starting_index):
 	acceptable_chars = string.hexdigits + "'.lLuUfFep"
 	number_val = ''
 	current_index = starting_index
+	file_length = len(file_string)
 
-	while file_string[current_index] in acceptable_chars:
-		if file_string[current_index] in 'ep' and file_string[current_index+1] == '-':
+	while current_index < file_length and file_string[current_index] in acceptable_chars:
+		if file_string[current_index] in 'ep' and current_index < file_lengthfile_string[current_index+1] == '-':
 			number_val += file_string[current_index]
 			current_index += 1
 		number_val += file_string[current_index]

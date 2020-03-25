@@ -7,9 +7,4 @@ This program will interpret C and C++ code, then write obfuscated code where all
 
 ## Running the yeetpiler
 
-    python [-r][-i input_path][-o output_path]
-
-## TODO
-
-- Literal strings denoted with L
-- User-defined literals
+    python3 [-r][-i input_path][-o output_path]
