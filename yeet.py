@@ -135,7 +135,6 @@ def main(argv):
 			print(e)
 
 
-
 	# Output header file with the macro definitions for all of the input files
 	try:
 		yeetfile = os.path.join(output_directory, 'yeet.h')

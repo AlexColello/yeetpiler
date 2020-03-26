@@ -2,7 +2,6 @@
 	TODO:
 	defined keyword: https://gcc.gnu.org/onlinedocs/gcc-8.4.0/cpp/Defined.html
 	User defined literals: https://en.cppreference.com/w/cpp/language/user_literal
-	String literals: https://en.cppreference.com/w/cpp/language/string_literal
 """
 
 
@@ -25,6 +24,15 @@ three_character_operators = [
 
 def is_delimiter(char):
 	return char not in string.ascii_letters and char not in string.digits and char not in '_$'
+
+def is_string_prefix(file_string, starting_index):
+	if file_string[starting_index] == '"':
+		return True
+	elif file_string[starting_index] in 'RLuU' and starting_index+1 < len(file_string) and file_string[starting_index+1] == '"':
+		return True
+	elif starting_index+2 < len(file_string) and file_string[starting_index:starting_index+3] == 'u8"':
+		return True
+	return False
 
 def parse_indentation(file_string, starting_index):
 
@@ -67,16 +75,46 @@ def parse_single_line_comment(file_string, starting_index):
 
 def parse_string_literal(file_string, starting_index):
 
-	assert file_string[starting_index] == '"'
+	assert file_string[starting_index] in '"RLuU'
 
-	string_val = '"'
-	current_index = starting_index + 1
-	while file_string[current_index] != '"':
-		if file_string[current_index] == '\\':
+	string_val = ''
+	current_index = starting_index
+
+	# Variables for R
+	raw = False
+	raw_delimiter = ')'
+
+	# Deal with prefixes documented in https://en.cppreference.com/w/cpp/language/string_literal
+	if file_string[current_index] in 'RLuU':
+		if file_string[current_index] == 'R':
+			raw = True
+			string_val += file_string[current_index:current_index+2]
+			current_index += 2
+			while file_string[current_index] != '(':
+				string_val += file_string[current_index]
+				raw_delimiter += file_string[current_index]
+				current_index += 1
+		elif file_string[current_index] == 'u' and file_string[current_index+1] == '8':
+			string_val += file_string[current_index:current_index+2]
+			current_index += 2
+		else:
 			string_val += file_string[current_index]
 			current_index += 1
-		string_val += file_string[current_index]
-		current_index += 1
+
+	string_val += file_string[current_index]
+	current_index += 1
+
+	while file_string[current_index] != '"' or raw:
+		if raw and file_string[current_index:current_index+len(raw_delimiter)+1] == raw_delimiter+'"':
+			raw = False
+			string_val += raw_delimiter
+			current_index += len(raw_delimiter)
+		elif not raw and file_string[current_index] == '\\':
+			string_val += file_string[current_index:current_index+2]
+			current_index += 2
+		else:
+			string_val += file_string[current_index]
+			current_index += 1
 	string_val += '"'
 
 	return string_val
@@ -161,7 +199,7 @@ def parse_number(file_string, starting_index):
 	file_length = len(file_string)
 
 	while current_index < file_length and file_string[current_index] in acceptable_chars:
-		if file_string[current_index] in 'ep' and current_index < file_lengthfile_string[current_index+1] == '-':
+		if file_string[current_index] in 'ep' and (current_index < file_length and file_string[current_index+1] == '-'):
 			number_val += file_string[current_index]
 			current_index += 1
 		number_val += file_string[current_index]
@@ -243,11 +281,22 @@ def parse_file(file_string):
 				# This should be whitespace other than newline
 				current_index += 1
 
-		elif current_token == '' and file_string[current_index] in string.digits:
+		elif current_token == '':
+			if file_string[current_index] in string.digits:
 
-			number_val = parse_number(file_string, current_index)
-			current_index += len(number_val)
-			tokens.append((number_val, True))
+				number_val = parse_number(file_string, current_index)
+				current_index += len(number_val)
+				tokens.append((number_val, True))
+
+			elif is_string_prefix(file_string, current_index):
+
+				string_val = parse_string_literal(file_string, current_index)
+				current_index += len(string_val)
+				tokens.append((string_val, True))
+
+			else:
+				current_token += file_string[current_index]
+				current_index += 1
 
 		else:
 			current_token += file_string[current_index]
